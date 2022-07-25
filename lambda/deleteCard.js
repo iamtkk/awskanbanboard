@@ -10,27 +10,28 @@ exports.handler = async (event) => {
 
   let response = "";
   try {
-    const id = event.pathParameters.id;
-    const body = JSON.parse(event.body);
+    const id = event.requestContext.requestId;
     var params = {
       TableName: tableName,
-      Key: { id: id },
-      UpdateExpression: "set #c = :c, #t = :t",
-      ExpressionAttributeNames: { "#c": "category", "#t": "title" },
-      ExpressionAttributeValues: {
-        ":c": body.category,
-        ":t": body.title,
+      Key: {
+        id: id,
       },
     };
-    await documentClient.update(params).promise();
+    await documentClient.delete(params).promise();
 
     response = {
-      statusCode: 200,
+      statusCode: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
     };
   } catch (e) {
     console.log(e);
     response = {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
       body: JSON.stringify({ "Message: ": e }),
     };
   }

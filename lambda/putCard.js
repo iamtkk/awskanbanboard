@@ -10,18 +10,25 @@ exports.handler = async (event) => {
 
   let response = "";
   try {
+    const id = event.pathParameters.id;
+    const body = JSON.parse(event.body);
     var params = {
       TableName: tableName,
+      Key: { id: id },
+      UpdateExpression: "set #c = :c, #t = :t",
+      ExpressionAttributeNames: { "#c": "category", "#t": "title" },
+      ExpressionAttributeValues: {
+        ":c": body.category,
+        ":t": body.title,
+      },
     };
+    await documentClient.update(params).promise();
 
-    const cards = await documentClient.scan(params).promise();
-    // TODO implement
     response = {
-      statusCode: 200,
+      statusCode: 204,
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify(cards),
     };
   } catch (e) {
     console.log(e);
